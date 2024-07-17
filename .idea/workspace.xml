@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c51579d7-e19b-4fae-9d1a-6ff2149e5e1b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/alexnet.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lenet5.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/vgg16.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/alexnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/alexnet.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cnn.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +37,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.alexnet.executor": "Run",
     "Python.cnn.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
