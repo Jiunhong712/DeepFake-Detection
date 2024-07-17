@@ -56,8 +56,8 @@ Y_pred = model.predict(test_set)
 y_pred = (Y_pred > 0.5).astype(int)
 
 # Results
-print(confusion_matrix(validation_set.classes, y_pred))
-print(classification_report(validation_set.classes, y_pred, target_names=['Real', 'Fake']))
+print(confusion_matrix(test_set.classes, y_pred))
+print(classification_report(test_set.classes, y_pred, target_names=['Real', 'Fake']))
 
 # Visualizations
 img_file = r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\Assignment\CNN\architecture.png'
