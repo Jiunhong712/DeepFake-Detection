@@ -12,7 +12,11 @@ train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
     zoom_range=0.2,
-    horizontal_flip=True
+    horizontal_flip=True,
+    rotation_range=20,
+    width_shift_range=0.2,
+    height_shift_range=0.2,
+    brightness_range=[0.8, 1.2]
 )
 
 test_datagen = ImageDataGenerator(rescale=1. / 255)
@@ -20,26 +24,27 @@ test_datagen = ImageDataGenerator(rescale=1. / 255)
 # Load data
 train_generator = test_datagen.flow_from_directory(
     r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\train',
-    target_size=(224, 224),
-    batch_size=128,
+    target_size=(256, 256),
+    batch_size=256,
     class_mode='categorical'
 )
 
 validation_generator = test_datagen.flow_from_directory(
     r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\valid',
-    target_size=(224, 224),
-    batch_size=128,
+    target_size=(256, 256),
+    batch_size=256,
     class_mode='categorical'
 )
 
 test_generator = test_datagen.flow_from_directory(
     r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\test',
-    target_size=(224, 224),
-    batch_size=128,
-    class_mode='categorical'
+    target_size=(256, 256),
+    batch_size=256,
+    class_mode='categorical',
+    shuffle=False
 )
 
-# Print class distributions
+# Print class distributions (Debug)
 train_labels = train_generator.classes
 val_labels = validation_generator.classes
 test_labels = test_generator.classes
@@ -48,7 +53,7 @@ print(f'Validation set class distribution: {Counter(val_labels)}')
 print(f'Test set class distribution: {Counter(test_labels)}')
 
 
-# Define AlexNet model
+# AlexNet model
 def alexnet(input_shape, num_classes):
     model = Sequential()
 
@@ -79,10 +84,10 @@ def alexnet(input_shape, num_classes):
 
 
 # Create and compile the model
-input_shape = (224, 224, 3)
+input_shape = (256, 256, 3)
 num_classes = 2
 alexnet = alexnet(input_shape, num_classes)
-alexnet.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001), loss='categorical_crossentropy',
+alexnet.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000001), loss='categorical_crossentropy',
                 metrics=['accuracy', tf.keras.metrics.AUC(name='auc')])
 alexnet.summary()
 
@@ -90,6 +95,7 @@ alexnet.summary()
 history = alexnet.fit(
     train_generator,
     validation_data=validation_generator,
+    class_weight={0: 1., 1: 1.},
     epochs=100,
     callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True),
                tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5)]
@@ -116,7 +122,6 @@ y_pred = np.argmax(Y_pred, axis=1)
 fpr = dict()
 tpr = dict()
 roc_auc = dict()
-num_classes = len(test_generator.class_indices)
 
 for i in range(num_classes):
     fpr[i], tpr[i], _ = roc_curve(test_labels == i, Y_pred[:, i])
@@ -131,10 +136,10 @@ img_file = r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\Assign
 tf.keras.utils.plot_model(alexnet, show_shapes=True, show_layer_names=True, to_file=img_file)
 
 # Confusion matrix
-print(confusion_matrix(test_generator.classes, y_pred))
+print(confusion_matrix(test_generator.classes[:len(y_pred)], y_pred))
 
 # Classification report
-print(classification_report(test_generator.classes, y_pred, target_names=['Real', 'Fake']))
+print(classification_report(test_generator.classes[:len(y_pred)], y_pred, target_names=['Real', 'Fake']))
 
 # Plot training and validation accuracy
 plt.plot(history.history['accuracy'])
