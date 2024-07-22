@@ -2,10 +2,14 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 from collections import Counter
-from keras._tf_keras.keras.models import Sequential
-from keras._tf_keras.keras.preprocessing.image import ImageDataGenerator
+from keras.utils import plot_model
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc
+
+# Speed up training
+tf.keras.mixed_precision.set_global_policy('mixed_float16')
 
 # Data augmentation
 train_datagen = ImageDataGenerator(
@@ -23,28 +27,30 @@ test_datagen = ImageDataGenerator(rescale=1. / 255)
 
 # Load data
 train_generator = test_datagen.flow_from_directory(
-    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\train',
+    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\real_vs_fake\real-vs-fake\train',
     target_size=(256, 256),
-    batch_size=256,
-    class_mode='categorical'
+    batch_size=512,
+    class_mode='categorical',
+    shuffle=True
 )
 
 validation_generator = test_datagen.flow_from_directory(
-    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\valid',
+    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\real_vs_fake\real-vs-fake\valid',
     target_size=(256, 256),
-    batch_size=256,
-    class_mode='categorical'
+    batch_size=512,
+    class_mode='categorical',
+    shuffle=True
 )
 
 test_generator = test_datagen.flow_from_directory(
-    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\dataset\test',
+    r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\real_vs_fake\real-vs-fake\test',
     target_size=(256, 256),
-    batch_size=256,
+    batch_size=512,
     class_mode='categorical',
     shuffle=False
 )
 
-# Print class distributions (Debug)
+# (DEBUG) Print class distributions
 train_labels = train_generator.classes
 val_labels = validation_generator.classes
 test_labels = test_generator.classes
@@ -127,13 +133,9 @@ for i in range(num_classes):
     fpr[i], tpr[i], _ = roc_curve(test_labels == i, Y_pred[:, i])
     roc_auc[i] = auc(fpr[i], tpr[i])
 
-# Compute micro-average ROC curve and ROC area
-fpr["micro"], tpr["micro"], _ = roc_curve(test_labels, Y_pred[:, 1])
-roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-
 # Architecture visualization
-img_file = r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\Assignment\CNN\architecture.png'
-tf.keras.utils.plot_model(alexnet, show_shapes=True, show_layer_names=True, to_file=img_file)
+img_file = r'C:\Users\xavie\OneDrive\Documents\Y3S2\Y3S2 Machine Learning\Assignment\architecture.png'
+plot_model(alexnet, show_shapes=True, show_layer_names=True, to_file=img_file)
 
 # Confusion matrix
 print(confusion_matrix(test_generator.classes[:len(y_pred)], y_pred))
@@ -176,15 +178,4 @@ plt.title('Receiver Operating Characteristic (ROC)')
 plt.legend(loc="lower right")
 plt.show()
 
-# Plot micro-average ROC curve
-plt.figure()
-plt.plot(fpr["micro"], tpr["micro"], color='darkorange', lw=2,
-         label='micro-average ROC curve (area = {0:0.2f})'.format(roc_auc["micro"]))
-plt.plot([0, 1], [0, 1], 'k--', lw=2)
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Micro-average Receiver Operating Characteristic (ROC)')
-plt.legend(loc="lower right")
-plt.show()
+
