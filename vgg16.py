@@ -97,7 +97,7 @@ def build_vgg16(num_classes):
 # Create the model
 num_classes = 2
 vgg16 = build_vgg16(num_classes)
-vgg16.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0000001), loss='categorical_crossentropy',
+vgg16.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.000001), loss='categorical_crossentropy',
                 metrics=['accuracy', tf.keras.metrics.AUC(name='auc')])
 vgg16.summary()
 
